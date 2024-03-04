@@ -1,8 +1,8 @@
 ![Signed](https://img.shields.io/badge/Signed-No-FF3333)
 ![Game Trackmania](https://img.shields.io/badge/Game-Trackmania-blue)
-# PluginTemplate
+# Current Checkpoint
 
-A template for writing plugins more easily.
+Tells you how long you've been stuck on a checkpoint. Mostly useful for RPG/trial maps.
 
 <!-- ![Signed](https://img.shields.io/badge/Signed-Yes-00AA00) -->
 <!-- ![Signed](https://img.shields.io/badge/Signed-School_Mode-CC1199) -->
