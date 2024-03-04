@@ -1,6 +1,6 @@
 ![Signed](https://img.shields.io/badge/Signed-No-FF3333)
 ![Game Trackmania](https://img.shields.io/badge/Game-Trackmania-blue)
-# Current Checkpoint
+# Current Checkpoint Time
 
 Tells you how long you've been stuck on a checkpoint. Mostly useful for RPG/trial maps.
 
