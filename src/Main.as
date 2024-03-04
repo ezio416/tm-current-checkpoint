@@ -1,11 +1,17 @@
 // c 2024-03-03
-// m 2024-03-03
+// m 2024-03-04
 
 string       myName;
 const string title = "\\$FFF" + Icons::Flag + "\\$G Current Checkpoint";
 
 [Setting category="General" name="Enabled"]
 bool S_Enabled = true;
+
+[Setting category="General" name="Show/hide with game UI"]
+bool S_HideWithGame = true;
+
+[Setting category="General" name="Show/hide with Openplanet UI"]
+bool S_HideWithOP = false;
 
 void Main() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
@@ -18,14 +24,21 @@ void RenderMenu() {
 }
 
 void Render() {
+    if (
+        !S_Enabled
+        || (S_HideWithGame && !UI::IsGameUIVisible())
+        || (S_HideWithOP && !UI::IsOverlayShown())
+    )
+        return;
+
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
     CSmArenaClient@ Playground = cast<CSmArenaClient@>(App.CurrentPlayground);
 
     if (
         App.RootMap is null
         || Playground is null
-        || App.CurrentPlayground.GameTerminals.Length == 0
-        || App.CurrentPlayground.GameTerminals[0] is null
+        || Playground.GameTerminals.Length == 0
+        || Playground.GameTerminals[0] is null
     )
         return;
 
@@ -48,6 +61,6 @@ void Render() {
     int curCpTime = Math::Max(0, ScriptPlayer.CurrentRaceTime - cpInfo.lastCpTime);
 
     UI::Begin(title, S_Enabled, UI::WindowFlags::None);
-        UI::Text("cur CP time: " + curCpTime + " (" + Time::Format(curCpTime) + ")");
+        UI::Text(Time::Format(curCpTime));
     UI::End();
 }
