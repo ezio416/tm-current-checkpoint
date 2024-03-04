@@ -4,18 +4,16 @@
 string       myName;
 const string title = "\\$97F" + Icons::Flag + "\\$G Current Checkpoint Time";
 
-[Setting category="General" name="Enabled"]
-bool S_Enabled = true;
-
-[Setting category="General" name="Show/hide with game UI"]
-bool S_HideWithGame = true;
-
-[Setting category="General" name="Show/hide with Openplanet UI"]
-bool S_HideWithOP = false;
-
 void Main() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
     myName = App.LocalPlayerInfo.Name;
+
+    ChangeFont();
+}
+
+void OnSettingsChanged() {
+    if (currentFont != S_Font)
+        ChangeFont();
 }
 
 void RenderMenu() {
@@ -59,11 +57,55 @@ void Render() {
     if (cpInfo is null)
         return;
 
-    // would normally use ScriptPlayer.CurrentRaceTime, but it doesn't update with HUD off
-    int raceTime = Network.PlaygroundClientScriptAPI.GameTime - ScriptPlayer.StartTime;
-    int curCpTime = Math::Max(0, raceTime - cpInfo.lastCpTime);
+    if (!S_ShowNoCp) {
+        uint totalCps = 0;
 
-    UI::Begin(title, S_Enabled, UI::WindowFlags::None);
-        UI::Text(Time::Format(curCpTime));
-    UI::End();
+        for (uint i = 0; i < Playground.Arena.MapLandmarks.Length; i++) {
+            CGameScriptMapLandmark@ Landmark = Playground.Arena.MapLandmarks[i];
+
+            if (Landmark is null || Landmark.Waypoint is null || Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)
+                continue;
+
+            totalCps++;
+        }
+
+        if (totalCps == 0)
+            return;
+    }
+
+    // would normally use ScriptPlayer.CurrentRaceTime, but it doesn't update with HUD off
+    const int raceTime = Network.PlaygroundClientScriptAPI.GameTime - ScriptPlayer.StartTime;
+    const int curCpTime = Math::Max(0, raceTime - cpInfo.lastCpTime);
+
+    const string text = Time::Format(curCpTime);
+
+    nvg::FontSize(S_FontSize);
+    nvg::FontFace(font);
+    nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
+
+    const vec2 size = nvg::TextBounds(text);
+
+    const float width = Draw::GetWidth();
+    const float height = Draw::GetHeight();
+
+    if (S_Background) {
+        nvg::FillColor(S_BackgroundColor);
+        nvg::BeginPath();
+        nvg::RoundedRect(
+            width * S_X - size.x * 0.5f - S_BackgroundXPad,
+            height * S_Y - size.y * 0.5f - S_BackgroundYPad - 2.0f,
+            size.x + S_BackgroundXPad * 2.0f,
+            size.y + S_BackgroundYPad * 2.0f,
+            S_BackgroundRadius
+        );
+        nvg::Fill();
+    }
+
+    if (S_Drop) {
+        nvg::FillColor(S_DropColor);
+        nvg::Text(width * S_X + S_DropOffset, height * S_Y + S_DropOffset, text);
+    }
+
+    nvg::FillColor(S_FontColor);
+    nvg::Text(width * S_X, height * S_Y, text);
 }
