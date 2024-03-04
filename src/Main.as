@@ -2,7 +2,7 @@
 // m 2024-03-04
 
 string       myName;
-const string title = "\\$FFF" + Icons::Flag + "\\$G Current Checkpoint";
+const string title = "\\$97F" + Icons::Flag + "\\$G Current Checkpoint Time";
 
 [Setting category="General" name="Enabled"]
 bool S_Enabled = true;
