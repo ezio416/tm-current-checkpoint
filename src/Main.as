@@ -32,6 +32,7 @@ void Render() {
         return;
 
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
+    CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
     CSmArenaClient@ Playground = cast<CSmArenaClient@>(App.CurrentPlayground);
 
     if (
@@ -58,7 +59,9 @@ void Render() {
     if (cpInfo is null)
         return;
 
-    int curCpTime = Math::Max(0, ScriptPlayer.CurrentRaceTime - cpInfo.lastCpTime);
+    // would normally use ScriptPlayer.CurrentRaceTime, but it doesn't update with HUD off
+    int raceTime = Network.PlaygroundClientScriptAPI.GameTime - ScriptPlayer.StartTime;
+    int curCpTime = Math::Max(0, raceTime - cpInfo.lastCpTime);
 
     UI::Begin(title, S_Enabled, UI::WindowFlags::None);
         UI::Text(Time::Format(curCpTime));
