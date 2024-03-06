@@ -2,7 +2,7 @@
 name = "Current Checkpoint Time"
 author = "Ezio"
 category = "Race"
-version = "1.0.3"
+version = "1.0.4"
 siteid = 516
 
 [script]
