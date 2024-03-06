@@ -77,7 +77,7 @@ void Render() {
     if (cpInfo.cpCount == int(raceData.CPsToFinish))  // player finished
         return;
 
-    const string text = Time::Format(Math::Max(0, cpInfo.CurrentRaceTime - cpInfo.lastCpTime));
+    const string text = Time::Format(Math::Max(0, cpInfo.CurrentRaceTimeRaw - cpInfo.lastCpTime));
 
     nvg::FontSize(S_FontSize);
     nvg::FontFace(font);
