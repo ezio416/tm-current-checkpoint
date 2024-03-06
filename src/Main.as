@@ -85,15 +85,15 @@ void Render() {
 
     const vec2 size = nvg::TextBounds(text);
 
-    const float width = Draw::GetWidth() * S_X;
-    const float height = Draw::GetHeight() * S_Y;
+    const float posX = Draw::GetWidth() * S_X;
+    const float posY = Draw::GetHeight() * S_Y;
 
     if (S_Background) {
         nvg::FillColor(S_BackgroundColor);
         nvg::BeginPath();
         nvg::RoundedRect(
-            width - size.x * 0.5f - S_BackgroundXPad,
-            height - size.y * 0.5f - S_BackgroundYPad - 2.0f,
+            posX - size.x * 0.5f - S_BackgroundXPad,
+            posY - size.y * 0.5f - S_BackgroundYPad - 2.0f,
             size.x + S_BackgroundXPad * 2.0f,
             size.y + S_BackgroundYPad * 2.0f,
             S_BackgroundRadius
@@ -103,9 +103,9 @@ void Render() {
 
     if (S_Drop) {
         nvg::FillColor(S_DropColor);
-        nvg::Text(width + S_DropOffset, height + S_DropOffset, text);
+        nvg::Text(posX + S_DropOffset, posY + S_DropOffset, text);
     }
 
     nvg::FillColor(S_FontColor);
-    nvg::Text(width, height, text);
+    nvg::Text(posX, posY, text);
 }
