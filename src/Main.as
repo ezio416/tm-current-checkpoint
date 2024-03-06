@@ -1,5 +1,5 @@
 // c 2024-03-03
-// m 2024-03-04
+// m 2024-03-05
 
 string       myName;
 const string title = "\\$97F" + Icons::Flag + "\\$G Current Checkpoint Time";
@@ -53,7 +53,7 @@ void Render() {
     if (raceData is null)
         return;
 
-    const MLFeed::PlayerCpInfo@ cpInfo = raceData.GetPlayer_V2(myName);
+    const MLFeed::PlayerCpInfo_V2@ cpInfo = raceData.GetPlayer_V2(myName);
     if (cpInfo is null)
         return;
 
@@ -67,17 +67,17 @@ void Render() {
                 continue;
 
             totalCps++;
+            break;
         }
 
         if (totalCps == 0)
             return;
     }
 
-    // would normally use ScriptPlayer.CurrentRaceTime, but it doesn't update with HUD off
-    const int raceTime = Network.PlaygroundClientScriptAPI.GameTime - ScriptPlayer.StartTime;
-    const int curCpTime = Math::Max(0, raceTime - cpInfo.lastCpTime);
+    if (cpInfo.cpCount == int(raceData.CPsToFinish))  // player finished
+        return;
 
-    const string text = Time::Format(curCpTime);
+    const string text = Time::Format(Math::Max(0, cpInfo.CurrentRaceTimeRaw - cpInfo.lastCpTime));
 
     nvg::FontSize(S_FontSize);
     nvg::FontFace(font);
@@ -85,15 +85,15 @@ void Render() {
 
     const vec2 size = nvg::TextBounds(text);
 
-    const float width = Draw::GetWidth();
-    const float height = Draw::GetHeight();
+    const float posX = Draw::GetWidth() * S_X;
+    const float posY = Draw::GetHeight() * S_Y;
 
     if (S_Background) {
         nvg::FillColor(S_BackgroundColor);
         nvg::BeginPath();
         nvg::RoundedRect(
-            width * S_X - size.x * 0.5f - S_BackgroundXPad,
-            height * S_Y - size.y * 0.5f - S_BackgroundYPad - 2.0f,
+            posX - size.x * 0.5f - S_BackgroundXPad,
+            posY - size.y * 0.5f - S_BackgroundYPad - 2.0f,
             size.x + S_BackgroundXPad * 2.0f,
             size.y + S_BackgroundYPad * 2.0f,
             S_BackgroundRadius
@@ -103,9 +103,9 @@ void Render() {
 
     if (S_Drop) {
         nvg::FillColor(S_DropColor);
-        nvg::Text(width * S_X + S_DropOffset, height * S_Y + S_DropOffset, text);
+        nvg::Text(posX + S_DropOffset, posY + S_DropOffset, text);
     }
 
     nvg::FillColor(S_FontColor);
-    nvg::Text(width * S_X, height * S_Y, text);
+    nvg::Text(posX, posY, text);
 }
