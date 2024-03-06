@@ -53,7 +53,7 @@ void Render() {
     if (raceData is null)
         return;
 
-    const MLFeed::PlayerCpInfo@ cpInfo = raceData.GetPlayer_V2(myName);
+    const MLFeed::PlayerCpInfo_V2@ cpInfo = raceData.GetPlayer_V2(myName);
     if (cpInfo is null)
         return;
 
@@ -77,11 +77,7 @@ void Render() {
     if (cpInfo.cpCount == int(raceData.CPsToFinish))  // player finished
         return;
 
-    // would normally use ScriptPlayer.CurrentRaceTime, but it doesn't update with HUD off
-    const int raceTime = Network.PlaygroundClientScriptAPI.GameTime - ScriptPlayer.StartTime;
-    const int curCpTime = Math::Max(0, raceTime - cpInfo.lastCpTime);
-
-    const string text = Time::Format(curCpTime);
+    const string text = Time::Format(Math::Max(0, cpInfo.CurrentRaceTime - cpInfo.lastCpTime));
 
     nvg::FontSize(S_FontSize);
     nvg::FontFace(font);
