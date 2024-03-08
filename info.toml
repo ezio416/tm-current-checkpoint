@@ -2,8 +2,8 @@
 name = "Current Checkpoint Time"
 author = "Ezio"
 category = "Race"
-version = "1.0.4"
+version = "1.1.0"
 siteid = 516
 
 [script]
-dependencies = [ "MLHook", "MLFeedRaceData" ]
+dependencies = [ "MLHook", "MLFeedRaceData", "VehicleState" ]
