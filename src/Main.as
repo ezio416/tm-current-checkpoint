@@ -1,12 +1,15 @@
 // c 2024-03-03
-// m 2024-03-05
+// m 2024-03-08
 
+string       loginLocal;
 string       myName;
 const string title = "\\$97F" + Icons::Flag + "\\$G Current Checkpoint Time";
 
 void Main() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
     myName = App.LocalPlayerInfo.Name;
+
+    startnew(CacheLocalLogin);
 
     ChangeFont();
 }
@@ -30,7 +33,6 @@ void Render() {
         return;
 
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
-    CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
     CSmArenaClient@ Playground = cast<CSmArenaClient@>(App.CurrentPlayground);
 
     if (
@@ -38,15 +40,15 @@ void Render() {
         || Playground is null
         || Playground.GameTerminals.Length == 0
         || Playground.GameTerminals[0] is null
+        || Playground.GameTerminals[0].GUIPlayer is null
+        || Playground.UIConfigs.Length == 0
+        || Playground.UIConfigs[0] is null
+        || Playground.UIConfigs[0].UISequence != CGamePlaygroundUIConfig::EUISequence::Playing
     )
         return;
 
-    CSmPlayer@ Player = cast<CSmPlayer@>(Playground.GameTerminals[0].GUIPlayer);
-    if (Player is null)
-        return;
-
-    CSmScriptPlayer@ ScriptPlayer = cast<CSmScriptPlayer@>(Player.ScriptAPI);
-    if (ScriptPlayer is null)
+    CSmPlayer@ ViewingPlayer = VehicleState::GetViewingPlayer();
+    if (ViewingPlayer is null || ViewingPlayer.ScriptAPI.Login != loginLocal)
         return;
 
     const MLFeed::HookRaceStatsEventsBase_V4@ raceData = MLFeed::GetRaceData_V4();
@@ -108,4 +110,16 @@ void Render() {
 
     nvg::FillColor(S_FontColor);
     nvg::Text(posX, posY, text);
+}
+
+// courtesy of "Auto-hide Opponents" plugin - https://github.com/XertroV/tm-autohide-opponents
+void CacheLocalLogin() {
+    while (true) {
+        sleep(100);
+
+        loginLocal = GetLocalLogin();
+
+        if (loginLocal.Length > 10)
+            break;
+    }
 }
