@@ -1,5 +1,5 @@
 // c 2024-03-04
-// m 2024-03-04
+// m 2024-05-06
 
 [Setting category="General" name="Enabled"]
 bool S_Enabled = true;
@@ -12,6 +12,9 @@ bool S_HideWithOP = false;
 
 [Setting category="General" name="Show when there are no checkpoints" description="For multilaps, this setting is ignored"]
 bool S_ShowNoCp = false;
+
+[Setting category="General" name="Show number of respawns"]
+bool S_Respawns = true;
 
 
 [Setting category="Position/Style" name="Position X" min=0.0f max=1.0f]

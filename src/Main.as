@@ -1,15 +1,16 @@
 // c 2024-03-03
-// m 2024-03-08
+// m 2024-05-06
 
-string       loginLocal;
-string       myName;
-const string title = "\\$97F" + Icons::Flag + "\\$G Current Checkpoint Time";
+uint         currentRespawns = 0;
+int          lastCpCount     = 0;
+uint         lastRespawns    = 0;
+string       localLogin;
+string       localName;
+const string title           = "\\$97F" + Icons::Flag + "\\$G Current Checkpoint Time";
 
 void Main() {
-    CTrackMania@ App = cast<CTrackMania@>(GetApp());
-    myName = App.LocalPlayerInfo.Name;
-
     startnew(CacheLocalLogin);
+    startnew(CacheLocalName);
 
     ChangeFont();
 }
@@ -48,38 +49,40 @@ void Render() {
         return;
 
     CSmPlayer@ ViewingPlayer = VehicleState::GetViewingPlayer();
-    if (ViewingPlayer is null || ViewingPlayer.ScriptAPI.Login != loginLocal)
+    if (ViewingPlayer is null || ViewingPlayer.ScriptAPI is null || ViewingPlayer.ScriptAPI.Login != localLogin)
         return;
 
     const MLFeed::HookRaceStatsEventsBase_V4@ raceData = MLFeed::GetRaceData_V4();
     if (raceData is null)
         return;
 
-    const MLFeed::PlayerCpInfo_V2@ cpInfo = raceData.GetPlayer_V2(myName);
+    if (!S_ShowNoCp && raceData.CPsToFinish == 1)
+        return;
+
+    const MLFeed::PlayerCpInfo_V4@ cpInfo = raceData.GetPlayer_V4(localName);
     if (cpInfo is null)
         return;
 
-    if (!S_ShowNoCp) {
-        uint totalCps = 0;
-
-        for (uint i = 0; i < Playground.Arena.MapLandmarks.Length; i++) {
-            CGameScriptMapLandmark@ Landmark = Playground.Arena.MapLandmarks[i];
-
-            if (Landmark is null || Landmark.Waypoint is null || Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)
-                continue;
-
-            totalCps++;
-            break;
-        }
-
-        if (totalCps == 0)
-            return;
+    if (lastRespawns != cpInfo.NbRespawnsRequested) {
+        lastRespawns = cpInfo.NbRespawnsRequested;
+        currentRespawns++;
     }
 
-    if (cpInfo.cpCount == int(raceData.CPsToFinish))  // player finished
-        return;
+    if (lastRespawns == 0 || cpInfo.CurrentRaceTimeRaw - cpInfo.lastCpTime < 0)
+        currentRespawns = 0;
 
-    const string text = Time::Format(Math::Max(0, cpInfo.CurrentRaceTimeRaw - cpInfo.lastCpTime));
+    if (lastCpCount != cpInfo.cpCount) {
+        lastCpCount = cpInfo.cpCount;
+        currentRespawns = 0;
+    }
+
+    if (cpInfo.cpCount == int(raceData.CPsToFinish)) {
+        lastRespawns = 0;
+        currentRespawns = 0;
+        return;
+    }
+
+    const string text = Time::Format(Math::Max(0, cpInfo.CurrentRaceTimeRaw - cpInfo.lastCpTime)) + (S_Respawns && currentRespawns > 0 ? " (" + currentRespawns + ")" : "");
 
     nvg::FontSize(S_FontSize);
     nvg::FontFace(font);
@@ -110,16 +113,4 @@ void Render() {
 
     nvg::FillColor(S_FontColor);
     nvg::Text(posX, posY, text);
-}
-
-// courtesy of "Auto-hide Opponents" plugin - https://github.com/XertroV/tm-autohide-opponents
-void CacheLocalLogin() {
-    while (true) {
-        sleep(100);
-
-        loginLocal = GetLocalLogin();
-
-        if (loginLocal.Length > 10)
-            break;
-    }
 }
